@@ -10,10 +10,11 @@ interface NumberBoard {
 	function updateMessage(uint256 theNum, string calldata aMessage) external;
 }
 
+/// @author William Entriken
 contract WrappedNumberBoard is ERC721Enumerable, Ownable {
     NumberBoard constant public NUMBERBOARD = NumberBoard(0x9249133819102b2ed31680468c8c67F6Fe9E7505);
     uint256 constant MIN_PRICE = 1e15; // 1 finney
-    string public _baseURIStorage;
+    string _baseURIStorage;
     
     constructor() ERC721("Wrapped Number Board", "WNB") {}
 
@@ -25,7 +26,7 @@ contract WrappedNumberBoard is ERC721Enumerable, Ownable {
     // To unwrap you must do these in immediate succession:
     //  1. Call unwrap
     //  2. Execute acceptBuyNowOffer on underlying contract to take Number Board card
-    //  3. Collect remaining furds here with withdrawEarnings (optional)
+    //  3. Collect remaining funds here with withdrawEarnings (optional)
     //  4. Revent if anything didn't work
     // Because processing multiple orders in immediate succession is not possible with externally-owned accounts (e.g.
     // MetaMask), and because all other unwraps are at risk of sniping, unwrapping is restricted to smart contracts.
@@ -33,6 +34,7 @@ contract WrappedNumberBoard is ERC721Enumerable, Ownable {
         require(ownerOf(theNum) == msg.sender);
         require(tx.origin != msg.sender, "Only a smart contract can unwrap, due to sniping risk");
         NUMBERBOARD.placeBuyNowOffer(theNum, MIN_PRICE);
+        _burn(theNum);
     }
     
     // Yes, intentionally open access, see notes in unwrap
